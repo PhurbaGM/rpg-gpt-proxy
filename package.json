@@ -2,7 +2,6 @@
   "name": "gpt-proxy",
   "version": "1.0.0",
   "main": "gpt-proxy.js",
-  "type": "module",
   "scripts": {
     "start": "node gpt-proxy.js"
   },
