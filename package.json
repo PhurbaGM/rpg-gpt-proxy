@@ -1,0 +1,14 @@
+{
+  "name": "gpt-proxy",
+  "version": "1.0.0",
+  "main": "gpt-proxy.js",
+  "type": "module",
+  "scripts": {
+    "start": "node gpt-proxy.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.7"
+  }
+}
