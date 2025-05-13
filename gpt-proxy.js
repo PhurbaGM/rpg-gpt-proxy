@@ -1,42 +1,46 @@
-const express = require("express");
-const cors = require("cors");
-const fetch = require("node-fetch");
+// gpt-proxy.js
+const fs = require('fs');
+const express = require('express');
+const axios = require('axios');
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const MODEL = "gpt-3.5-turbo";
-
-app.use(cors());
 app.use(express.json());
 
-app.post("/ask", async (req, res) => {
-  const userPrompt = req.body.prompt;
+const PORT = process.env.PORT || 10000;
+
+// Chargement du contexte
+const context = fs.readFileSync('./game-context.txt', 'utf-8');
+
+// Traitement des requêtes utilisateur
+app.post('/ask', async (req, res) => {
+  const userMessage = req.body.message;
+
+  const fullPrompt = [
+    { role: "system", content: context },
+    { role: "user", content: userMessage }
+  ];
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: 'gpt-3.5-turbo',
+        messages: fullPrompt,
       },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [{ role: "user", content: userPrompt }]
-      })
-    });
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
-    const data = await response.json();
-    console.log("Réponse OpenAI :", data);
-
-    if (data.choices && data.choices.length > 0) {
-      res.json({ reply: data.choices[0].message.content });
-    } else {
-      res.status(500).json({ error: "Pas de réponse de l'IA." });
-    }
+    const reply = response.data.choices[0].message.content;
+    res.json({ reply });
   } catch (error) {
-    console.error("Erreur proxy GPT :", error);
-    res.status(500).json({ error: "Erreur interne du serveur." });
+    console.error(error.response?.data || error.message);
+    res.status(500).json({ error: 'Erreur API' });
   }
 });
 
