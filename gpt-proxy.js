@@ -1,49 +1,59 @@
-// gpt-proxy.js
-const fs = require('fs');
-const express = require('express');
-const axios = require('axios');
-require('dotenv').config();
+const fs = require("fs");
+const path = require("path");
+const express = require("express");
+const bodyParser = require("body-parser");
+const axios = require("axios");
 
 const app = express();
-app.use(express.json());
+const port = process.env.PORT || 10000;
 
-const PORT = process.env.PORT || 10000;
+app.use(bodyParser.json());
 
-// Chargement du contexte
-const context = fs.readFileSync('./game-context.txt', 'utf-8');
+// Lire le contexte du jeu au démarrage
+const contextPath = path.join(__dirname, "Data", "game-context.txt");
+let gameContext = "";
 
-// Traitement des requêtes utilisateur
-app.post('/ask', async (req, res) => {
+try {
+  gameContext = fs.readFileSync(contextPath, "utf8");
+  console.log("Contexte du jeu chargé.");
+} catch (err) {
+  console.error("Erreur lors du chargement du contexte :", err.message);
+}
+
+app.post("/ask", async (req, res) => {
   const userMessage = req.body.message;
 
-  const fullPrompt = [
-    { role: "system", content: context },
-    { role: "user", content: userMessage }
-  ];
+  if (!userMessage) {
+    return res.status(400).json({ error: "Message requis." });
+  }
+
+  const fullPrompt = `${gameContext}\n\nJoueur : ${userMessage}`;
 
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/chat/completions',
+      "https://api.openai.com/v1/chat/completions",
       {
-        model: 'gpt-3.5-turbo',
-        messages: fullPrompt,
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "Tu es un personnage du jeu Les Chroniques d'Hammaël." },
+          { role: "user", content: fullPrompt },
+        ],
       },
       {
         headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
         },
       }
     );
 
-    const reply = response.data.choices[0].message.content;
-    res.json({ reply });
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({ error: 'Erreur API' });
+    res.json({ response: response.data.choices[0].message.content.trim() });
+  } catch (err) {
+    console.error("Erreur API :", err.response?.data || err.message);
+    res.status(500).json({ error: "Erreur API" });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Serveur GPT Proxy actif sur le port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Serveur GPT Proxy actif sur le port ${port}`);
 });
