@@ -35,13 +35,19 @@ app.post("/ask", async (req, res) => {
       {
         model: "gpt-3.5-turbo",
         messages: [
-          { role: "system", content: "Tu es un personnage du jeu Les Chroniques d'Hammaël." },
+          {
+            role: "system",
+            content: `Tu es un personnage du jeu Les Chroniques d'Hammaël. 
+                      Réponds toujours de manière concise, en 2 à 3 lignes, 
+                      pour que la réponse tienne dans une boîte de dialogue RPG Maker. 
+                      Ne dépasse pas environ 140 caractères par ligne.`
+          },
           { role: "user", content: fullPrompt },
         ],
       },
       {
         headers: {
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
           "Content-Type": "application/json",
         },
       }
@@ -49,7 +55,7 @@ app.post("/ask", async (req, res) => {
 
     res.json({ reply: response.data.choices[0].message.content.trim() });
   } catch (err) {
-    res.json({ reply: response.data.choices[0].message.content.trim() });
+    console.error("Erreur API :", err.response?.data || err.message);
     res.status(500).json({ error: "Erreur API" });
   }
 });
