@@ -49,7 +49,7 @@ app.post("/ask", async (req, res) => {
 
     res.json({ response: response.data.choices[0].message.content.trim() });
   } catch (err) {
-    console.error("Erreur API :", err.response?.data || err.message);
+    res.json({ reply: response.data.choices[0].message.content.trim() });
     res.status(500).json({ error: "Erreur API" });
   }
 });
