@@ -33,17 +33,19 @@ app.post("/ask", async (req, res) => {
     const response = await axios.post(
       "https://api.deepinfra.com/v1/openai/chat/completions",
       {
-        model: "gpt-3.5-turbo",
+        model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
         messages: [
           {
             role: "system",
             content: `Tu es un personnage du jeu Les Chroniques d'Hammaël. 
-                      Réponds toujours de manière concise, en 2 à 3 lignes, 
-                      pour que la réponse tienne dans une boîte de dialogue RPG Maker. 
-                      Ne dépasse pas environ 140 caractères par ligne.`
+Réponds toujours de manière concise, en 2 à 3 lignes, 
+pour que la réponse tienne dans une boîte de dialogue RPG Maker. 
+Ne dépasse pas environ 140 caractères par ligne.`
           },
           { role: "user", content: fullPrompt },
         ],
+        temperature: 0.7, // facultatif, mais souvent utile pour la créativité
+        max_tokens: 500  // utile pour limiter les réponses trop longues
       },
       {
         headers: {
@@ -54,6 +56,7 @@ app.post("/ask", async (req, res) => {
     );
 
     res.json({ reply: response.data.choices[0].message.content.trim() });
+
   } catch (err) {
     console.error("Erreur API :", err.response?.data || err.message);
     res.status(500).json({ error: "Erreur API" });
