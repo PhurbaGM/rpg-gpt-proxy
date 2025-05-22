@@ -9,7 +9,6 @@ const port = process.env.PORT || 10000;
 
 app.use(bodyParser.json());
 
-// Lire le contexte du jeu au démarrage
 const contextPath = path.join(__dirname, "Data", "game-context.txt");
 let gameContext = "";
 
@@ -31,25 +30,25 @@ app.post("/ask", async (req, res) => {
 
   try {
     const response = await axios.post(
-      "https://api.deepinfra.com/v1/openai/chat/completions",
+      "https://api.fireworks.ai/inference/v1/chat/completions",
       {
-        model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+        model: "accounts/fireworks/models/mixtral-8x7b-instruct", // ou llama-3-70b
         messages: [
           {
             role: "system",
             content: `Tu es un personnage du jeu Les Chroniques d'Hammaël. 
-Réponds toujours de manière concise, en 2 à 3 lignes, 
-pour que la réponse tienne dans une boîte de dialogue RPG Maker. 
-Ne dépasse pas environ 140 caractères par ligne.`
+                      Réponds toujours de manière concise, en 2 à 3 lignes, 
+                      pour que la réponse tienne dans une boîte de dialogue RPG Maker. 
+                      Ne dépasse pas environ 140 caractères par ligne.`
           },
           { role: "user", content: fullPrompt },
         ],
-        temperature: 0.7, // facultatif, mais souvent utile pour la créativité
-        max_tokens: 500  // utile pour limiter les réponses trop longues
+        temperature: 0.7,
+        max_tokens: 500
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.DEEPINFRA_API_KEY}`,
+          Authorization: `Bearer ${process.env.FIREWORKS_API_KEY}`,
           "Content-Type": "application/json",
         },
       }
