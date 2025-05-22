@@ -32,7 +32,7 @@ app.post("/ask", async (req, res) => {
     const response = await axios.post(
       "https://api.fireworks.ai/inference/v1/chat/completions",
       {
-        model: "accounts/fireworks/models/mixtral-8x7b-instruct", // ou llama-3-70b
+        model: "accounts/fireworks/models/llama4-maverick-instruct-basic", // ou llama-3-70b
         messages: [
           {
             role: "system",
