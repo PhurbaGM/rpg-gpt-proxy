@@ -31,7 +31,7 @@ app.post("/ask", async (req, res) => {
 
   try {
     const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
+      "https://api.deepinfra.com/v1/openai/chat/completions",
       {
         model: "gpt-3.5-turbo",
         messages: [
@@ -47,7 +47,7 @@ app.post("/ask", async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          Authorization: `Bearer ${process.env.DEEPINFRA_API_KEY}`,
           "Content-Type": "application/json",
         },
       }
