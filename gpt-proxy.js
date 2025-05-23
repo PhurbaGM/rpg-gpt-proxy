@@ -30,7 +30,7 @@ app.post("/ask", async (req, res) => {
 
   try {
     const response = await axios.post(
-      "accounts/fireworks/models/mixtral-8x22b-instruct",
+      "https://api.fireworks.ai/inference/v1/chat/completions",
       {
         model: "accounts/fireworks/models/mixtral-8x22b-instruct", // ou llama-3-70b
         messages: [
